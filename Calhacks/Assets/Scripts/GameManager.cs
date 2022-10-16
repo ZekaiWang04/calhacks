@@ -37,7 +37,6 @@ public class GameManager : MonoBehaviour
         Player = 1;
         placeObject = GetComponentInChildren<PlaceObject>();
 
-        //sphere.spawn = placeObject.Activate(spawn, false).transform;
         first = true;
         state = 3;
 
@@ -51,7 +50,7 @@ public class GameManager : MonoBehaviour
 
     public void Place()
     {
-        if (!placeObject.placed)
+        if (!placeObject.placed || placeObject.obj == null)
             return;
 
         if (first)
@@ -61,13 +60,14 @@ public class GameManager : MonoBehaviour
             {
                 selectionUI.transform.GetChild(1).gameObject.SetActive(false);
                 placeObject.obj = null;
+                ResetAlpha();
             }
             else
             {
                 selectionUI.transform.GetChild(0).gameObject.SetActive(false);
                 placeObject.obj = null;
+                ResetAlpha();
             }
-            //placeObject.Activate(goal, false);
             first = false;
         }
         else
@@ -77,18 +77,21 @@ public class GameManager : MonoBehaviour
                 spike = Instantiate(spikePrefab);
                 spike.SetActive(false);
                 placeObject.obj = null;
+                ResetAlpha();
             }
             else if (activePrefab == fanPrefab)
             {
                 fan = Instantiate(fanPrefab);
                 fan.SetActive(false);
                 placeObject.obj = null;
+                ResetAlpha();
             }
             else if (activePrefab == bumperPrefab)
             {
                 bumper = Instantiate(bumperPrefab);
                 bumper.SetActive(false);
                 placeObject.obj = null;
+                ResetAlpha();
             }
             else
             {
@@ -99,6 +102,7 @@ public class GameManager : MonoBehaviour
                     selectionUI.transform.GetChild(i).gameObject.SetActive(true);
                 }
                 placeObject.obj = null;
+                ResetAlpha();
             }
             Next();
         }
@@ -114,14 +118,12 @@ public class GameManager : MonoBehaviour
         else if (state == 1)
         {
             sphere.gameObject.SetActive(false);
-            //placeObject.Activate(spike, true);
             ballUI.SetActive(false);
             placeUI.SetActive(true);
             SwitchPlayer();
         }
         else if (state == 2)
         {
-            //placeObject.Activate(spike, true);
             SwitchPlayer();
         }
         else
@@ -142,7 +144,7 @@ public class GameManager : MonoBehaviour
         playerText.text = "Player " + Player.ToString();
     }
 
-    public void SwitchObstacle(int x)
+    public void ResetAlpha()
     {
         foreach (Transform child in selectionUI.transform)
         {
@@ -150,9 +152,14 @@ public class GameManager : MonoBehaviour
             temp2.a = 0.4f;
             child.GetComponent<Image>().color = temp2;
         }
+    }
+
+    public void SwitchObstacle(int x)
+    {
+        ResetAlpha();
 
         Color temp = selectionUI.transform.GetChild(x).GetComponent<Image>().color;
-        temp.a = 0.7f;
+        temp.a = 0.9f;
         selectionUI.transform.GetChild(x).GetComponent<Image>().color = temp;
 
         if (x == 0)

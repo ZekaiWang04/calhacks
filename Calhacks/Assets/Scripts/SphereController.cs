@@ -12,12 +12,14 @@ public class SphereController : MonoBehaviour
     public float hitCooldown;
 
     public float hitTimer;
+    public bool frozen;
 
     public DisplayGyroscope displayGyroscope;
     public HealthController health;
     public Transform spawn;
     public TextMeshProUGUI gameEndText;
     public GameManager gameManager;
+    public GameObject tapText;
 
     public Rigidbody rb;
     public Camera cam;
@@ -41,6 +43,18 @@ public class SphereController : MonoBehaviour
         {
             hitTimer -= Time.deltaTime;
         }
+
+        if (rb.constraints == RigidbodyConstraints.FreezeAll)
+        {
+            if (Input.touchCount != 0)
+            {
+                rb.constraints = RigidbodyConstraints.None;
+                rb.velocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
+                ResetZero();
+                tapText.SetActive(false);
+            }
+        }
     }
 
     // Update is called once per frame
@@ -48,10 +62,10 @@ public class SphereController : MonoBehaviour
     {
         Vector3 dir = zeroQuaternion * cam.transform.forward;
         rb.AddForce(gravity * new Vector3(-dir.x, dir.y, -dir.z), ForceMode.Force);
-        //rb.AddForce(gravity * Vector3.down, ForceMode.Force);
 
         //displayGyroscope.UpdateText(cam.transform.forward.ToString());
 
+        //rb.AddForce(gravity * Vector3.down, ForceMode.Force);
         //if (Input.GetKey(KeyCode.W))
         //    rb.AddForce(Vector3.forward);
         //if (Input.GetKey(KeyCode.A))
@@ -71,8 +85,6 @@ public class SphereController : MonoBehaviour
     {
         if (other.CompareTag("Fan"))
         {
-            //Debug.Log("a");
-            //other.transform.position.y
             rb.AddForce(Mathf.Lerp(fanForce, 0, (transform.position.y - other.transform.position.y) / fanHeight) * Vector3.up, ForceMode.Force);
         }
     }
@@ -116,11 +128,9 @@ public class SphereController : MonoBehaviour
 
     public void Spawn()
     {
-        transform.position = spawn.position + new Vector3(0, 0.06f, 0);
-        rb.velocity = Vector3.zero;
-        rb.angularVelocity = Vector3.zero;
-        health.ResetHealth();
-        ResetZero();
+        transform.position = spawn.position + new Vector3(0, 0.05f, 0);
+        rb.constraints = RigidbodyConstraints.FreezeAll;
+        tapText.SetActive(true);
 
         gameObject.SetActive(true);
     }

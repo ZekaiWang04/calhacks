@@ -4,37 +4,33 @@ using UnityEngine;
 
 public class HealthController : MonoBehaviour
 {
-    public int health;
+    public int p1Health;
+    public int p2Health;
     public GameObject[] p1Objects;
-
-
+    public GameObject[] p2Objects;
 
     // Start is called before the first frame update
     void Start()
     {
-        ResetHealth();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        p1Health = 3;
+        p2Health = 3;
     }
 
     public bool TakeDamage()
     {
-        health--;
-        p1Objects[health].SetActive(false);
-
-        return health == 0;
-    }
-
-    public void ResetHealth()
-    {
-        health = 3;
-        foreach (GameObject obj in p1Objects)
+        if (GameManager.Player == 1)
         {
-            obj.SetActive(true);
+            p1Health--;
+            p1Objects[p1Health].SetActive(false);
+
+            return p1Health == 0;
+        }
+        else
+        {
+            p2Health--;
+            p2Objects[p2Health].SetActive(false);
+
+            return p2Health == 0;
         }
     }
 }

@@ -3,9 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.EventSystems;
+using TMPro;
 
 public class PlaceObject : MonoBehaviour
 {
+    public Transform spawnTransform;
+    public Transform goalTransform;
+    public Animator anim;
+    public TextMeshProUGUI errorText;
+
     public LayerMask layerMask;
 
     public GameObject obj;
@@ -13,12 +19,10 @@ public class PlaceObject : MonoBehaviour
     public bool placed;
 
     private Camera arCamera;
-    private ARMeshManager arMeshManager;
 
     void Start()
     {
         arCamera = Camera.main;//GetComponentInChildren<Camera>();
-        arMeshManager = GetComponentInChildren<ARMeshManager>();
     }
 
     // Update is called once per frame
@@ -38,7 +42,13 @@ public class PlaceObject : MonoBehaviour
                 {
                     if (!canPlaceVertical && Vector3.Angle(Vector3.up, hit.normal) > 15)
                     {
-
+                        errorText.text = "Too steep!";
+                        anim.Play("Fade");
+                    }
+                    else if ((goalTransform != obj.transform && (goalTransform.position - hit.point).magnitude < 0.18f) || (spawnTransform != obj.transform && (spawnTransform.position - hit.point).magnitude < 0.18f))
+                    {
+                        errorText.text = "Too close to spawn/goal!";
+                        anim.Play("Fade");
                     }
                     else
                     {
@@ -80,7 +90,6 @@ public class PlaceObject : MonoBehaviour
 
     public GameObject Activate(GameObject obj, bool canPlaceVertical)
     {
-        //this.obj = Instantiate(obj);
         if (this.obj != null)
             this.obj.SetActive(false);
         this.obj = obj;
