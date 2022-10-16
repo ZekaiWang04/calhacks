@@ -10,6 +10,7 @@ public class SphereController : MonoBehaviour
     public float fanHeight;
     public float bumperImpulse;
     public float hitCooldown;
+    public float respawnTimer;
 
     public float hitTimer;
     public bool frozen;
@@ -43,8 +44,12 @@ public class SphereController : MonoBehaviour
         {
             hitTimer -= Time.deltaTime;
         }
+        if (respawnTimer > 0)
+        {
+            respawnTimer -= Time.deltaTime;
+        }
 
-        if (rb.constraints == RigidbodyConstraints.FreezeAll)
+        if (rb.constraints == RigidbodyConstraints.FreezeAll && respawnTimer <= 0)
         {
             if (Input.touchCount != 0)
             {
@@ -131,6 +136,7 @@ public class SphereController : MonoBehaviour
         transform.position = spawn.position + new Vector3(0, 0.05f, 0);
         rb.constraints = RigidbodyConstraints.FreezeAll;
         tapText.SetActive(true);
+        respawnTimer = 0.2f;
 
         gameObject.SetActive(true);
     }
