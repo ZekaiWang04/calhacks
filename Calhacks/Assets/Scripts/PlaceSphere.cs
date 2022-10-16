@@ -6,6 +6,7 @@ using UnityEngine.XR.ARFoundation;
 public class PlaceSphere : MonoBehaviour
 {
     public GameObject sphere;
+    private SphereController sphereController;
     public LayerMask layerMask;
 
     private Camera arCamera;
@@ -16,6 +17,8 @@ public class PlaceSphere : MonoBehaviour
     {
         arCamera = GetComponentInChildren<Camera>();
         arMeshManager = GetComponentInChildren<ARMeshManager>();
+
+        sphereController = sphere.GetComponent<SphereController>();
     }
 
     // Update is called once per frame
@@ -33,6 +36,7 @@ public class PlaceSphere : MonoBehaviour
                     //Instantiate(sphere, hit.point, Quaternion.identity);
                     sphere.transform.position = hit.point;
                     sphere.SetActive(true);
+                    sphereController.ResetZero();
                 }
             }
         }
