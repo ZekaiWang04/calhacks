@@ -34,7 +34,7 @@ public class PlaceSphere : MonoBehaviour
                 if (hasHit)
                 {
                     //Instantiate(sphere, hit.point, Quaternion.identity);
-                    sphere.transform.position = hit.point;
+                    sphere.transform.position = hit.point + new Vector3(0, 0.25f, 0);
                     sphere.SetActive(true);
                     sphereController.ResetZero();
                 }

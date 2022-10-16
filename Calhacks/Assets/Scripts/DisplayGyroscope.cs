@@ -16,9 +16,14 @@ public class DisplayGyroscope : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Quaternion quat = GyroToUnity(Input.gyro.attitude);
-        Vector3 rot = quat.eulerAngles;
-        text.text = rot.x.ToString() + " " + rot.y.ToString() + " " + rot.z.ToString();
+        //Quaternion quat = GyroToUnity(Input.gyro.attitude);
+        //Vector3 rot = quat.eulerAngles;
+        //text.text = rot.x.ToString() + " " + rot.y.ToString() + " " + rot.z.ToString();
+    }
+
+    public void UpdateText(string newText)
+    {
+        text.text = newText;
     }
 
     private static Quaternion GyroToUnity(Quaternion q)
