@@ -24,9 +24,12 @@ public class PlaceObject : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (obj == null)
+            return;
+
         foreach (Touch touch in Input.touches)
         {
-            if (touch.phase == TouchPhase.Began && !EventSystem.current.IsPointerOverGameObject())
+            if (touch.phase == TouchPhase.Began && !EventSystem.current.IsPointerOverGameObject(touch.fingerId))
             {
                 Ray ray = arCamera.ScreenPointToRay(touch.position);
                 var hasHit = Physics.Raycast(ray, out RaycastHit hit, float.PositiveInfinity, layerMask);
@@ -50,6 +53,7 @@ public class PlaceObject : MonoBehaviour
             }
         }
 
+        
         //if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject())
         //{
         //    Ray ray = arCamera.ScreenPointToRay(Input.mousePosition);
@@ -76,7 +80,10 @@ public class PlaceObject : MonoBehaviour
 
     public GameObject Activate(GameObject obj, bool canPlaceVertical)
     {
-        this.obj = Instantiate(obj);
+        //this.obj = Instantiate(obj);
+        if (this.obj != null)
+            this.obj.SetActive(false);
+        this.obj = obj;
         this.obj.SetActive(false);
         this.canPlaceVertical = canPlaceVertical;
         gameObject.SetActive(true);

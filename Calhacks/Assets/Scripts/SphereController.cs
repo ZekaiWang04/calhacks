@@ -8,6 +8,7 @@ public class SphereController : MonoBehaviour
     public float gravity;
     public float fanForce;
     public float fanHeight;
+    public float bumperImpulse;
     public float hitCooldown;
 
     public float hitTimer;
@@ -49,7 +50,7 @@ public class SphereController : MonoBehaviour
         rb.AddForce(gravity * new Vector3(-dir.x, dir.y, -dir.z), ForceMode.Force);
         //rb.AddForce(gravity * Vector3.down, ForceMode.Force);
 
-        displayGyroscope.UpdateText(cam.transform.forward.ToString());
+        //displayGyroscope.UpdateText(cam.transform.forward.ToString());
 
         //if (Input.GetKey(KeyCode.W))
         //    rb.AddForce(Vector3.forward);
@@ -94,6 +95,11 @@ public class SphereController : MonoBehaviour
         {
             gameManager.Next();
         }
+
+        if (collision.collider.CompareTag("Bumper"))
+        {
+            rb.AddForce(bumperImpulse * collision.GetContact(0).normal, ForceMode.Impulse);
+        }
     }
 
     public void Respawn()
@@ -114,6 +120,7 @@ public class SphereController : MonoBehaviour
         rb.velocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
         health.ResetHealth();
+        ResetZero();
 
         gameObject.SetActive(true);
     }
