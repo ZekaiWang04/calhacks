@@ -5,12 +5,17 @@ using UnityEngine;
 public class SphereController : MonoBehaviour
 {
     public float gravity;
+    public float fanForce;
+    public float fanHeight;
+    public float hitCooldown;
 
-    public GameObject vectorObject;
-    public GameObject testObject;
+    public float hitTimer;
+
     public DisplayGyroscope displayGyroscope;
+    public HealthController health;
+    public Transform spawn;
 
-    private Rigidbody rb;
+    public Rigidbody rb;
     private Camera cam;
     public Quaternion zeroQuaternion;
 
@@ -20,49 +25,85 @@ public class SphereController : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         cam = Camera.current;
         ResetZero();
+
+        hitTimer = 0;
+
+        gameObject.SetActive(false);
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        //Quaternion quat = Quaternion.Euler(-90, 0, 0) * GyroToUnity(Input.gyro.attitude) * Quaternion.Euler(90, 0, 0);
-        //Quaternion quat = GyroToUnity(Input.gyro.attitude) * zeroQuaternion;
-        //transform.localRotation = quat;
-        //displayGyroscope.UpdateText(quat.eulerAngles.ToString() + Camera.current.transform.rotation.eulerAngles.ToString());
-        //rb.AddForce(quat * zeroQuaternion * (gravity * Vector3.down), ForceMode.Force);
-
-        //vectorObject.transform.rotation = quat * zeroQuaternion;
-        //vectorObject.transform.position = transform.position;
-
-        //displayGyroscope.UpdateText((quat * zeroQuaternion).eulerAngles.ToString());
-        //testObject.transform.position = transform.position + quat * zeroQuaternion * (0.1f * Vector3.down);
-        //testObject.transform.position = transform.position + 0.1f * Camera.current.transform.forward;
-        Vector3 dir = zeroQuaternion * cam.transform.forward;
-        //Vector3 dir = testObject.transform.InverseTransformDirection(cam.transform.forward);
-        //rb.AddForce(gravity * new Vector3(-cam.transform.forward.x, cam.transform.forward.y, -cam.transform.forward.z), ForceMode.Force);
-        rb.AddForce(gravity * new Vector3(-dir.x, dir.y, -dir.z), ForceMode.Force);
+        if (hitTimer > 0)
+        {
+            hitTimer -= Time.deltaTime;
+        }
     }
 
     // Update is called once per frame
-    //void Update()
-    //{
-    //    Quaternion quat = GyroToUnity(Input.gyro.attitude);
-    //    Vector3 delta_angle = Quaternion.Inverse(quat).eulerAngles - zeroQuaternion.eulerAngles;
-    //    Vector3 force = new Vector3(Mathf.Sin(delta_angle[0]), -1.0f, Mathf.Sin(delta_angle[1]));
-    //    rb.velocity += force * Time.deltaTime;
+    void FixedUpdate()
+    {
+        //Vector3 dir = zeroQuaternion * cam.transform.forward;
+        //rb.AddForce(gravity * new Vector3(-dir.x, dir.y, -dir.z), ForceMode.Force);
+        rb.AddForce(gravity * Vector3.down, ForceMode.Force);
 
-    //}
+        if (Input.GetKey(KeyCode.W))
+            rb.AddForce(Vector3.forward);
+        if (Input.GetKey(KeyCode.A))
+            rb.AddForce(Vector3.left);
+        if (Input.GetKey(KeyCode.S))
+            rb.AddForce(Vector3.back);
+        if (Input.GetKey(KeyCode.D))
+            rb.AddForce(Vector3.right);
+    }
 
     public void ResetZero()
     {
-        //zeroQuaternion = Quaternion.Inverse(GyroToUnity(Input.gyro.attitude));
-        zeroQuaternion.SetFromToRotation(cam.transform.forward, Vector3.down);
-        //zeroQuaternion = Quaternion.identity;
-        //testObject.transform.rotation = cam.transform.rotation;
+        //zeroQuaternion.SetFromToRotation(cam.transform.forward, Vector3.down);
     }
 
-    private static Quaternion GyroToUnity(Quaternion q)
+    private void OnTriggerStay(Collider other)
     {
-        return new Quaternion(q.x, q.y, -q.z, -q.w);
+        if (other.CompareTag("Fan"))
+        {
+            //Debug.Log("a");
+            //other.transform.position.y
+            rb.AddForce(Mathf.Lerp(fanForce, 0, (transform.position.y - other.transform.position.y) / fanHeight) * Vector3.up, ForceMode.Force);
+        }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (hitTimer <= 0 && collision.collider.CompareTag("Damage"))
+        {
+            if (health.TakeDamage())
+            {
+
+            }
+            else
+            {
+                hitTimer = hitCooldown;
+            }
+        }
+    }
+
+    public void Respawn()
+    {
+        if (health.TakeDamage())
+        {
+
+        }
+        else
+        {
+            Spawn();
+        }
+    }
+
+    public void Spawn()
+    {
+        transform.position = spawn.position + new Vector3(0, 0.06f, 0);
+        rb.velocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+
+        gameObject.SetActive(true);
     }
 }
