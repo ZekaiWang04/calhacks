@@ -10,11 +10,14 @@ public class GameManager : MonoBehaviour
     public PlaceObject placeObject;
     public GameObject spawn;
     public GameObject goal;
+    public GameObject spike;
 
     public GameObject ballUI;
     public GameObject placeUI;
 
     public TextMeshProUGUI playerText;
+
+    public int state;
 
     public SphereController sphere;
     private bool first;
@@ -27,6 +30,7 @@ public class GameManager : MonoBehaviour
 
         sphere.spawn = placeObject.Activate(spawn, false).transform;
         first = true;
+        state = 3;
     }
 
     // Update is called once per frame
@@ -48,12 +52,39 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            placeObject.gameObject.SetActive(false);
-            ballUI.SetActive(true);
-            placeUI.SetActive(false);
+            Next();
+        }
+    }
+
+    public void Next()
+    {
+        if (state == 0)
+        {
             SwitchPlayer();
             sphere.Spawn();
         }
+        else if (state == 1)
+        {
+            sphere.gameObject.SetActive(false);
+            placeObject.Activate(spike, true);
+            ballUI.SetActive(false);
+            placeUI.SetActive(true);
+            SwitchPlayer();
+        }
+        else if (state == 2)
+        {
+            placeObject.Activate(spike, true);
+            SwitchPlayer();
+        }
+        else
+        {
+            placeObject.gameObject.SetActive(false);
+            ballUI.SetActive(true);
+            placeUI.SetActive(false);
+            sphere.Spawn();
+        }
+
+        state = (state + 1) % 4;
     }
 
     public void SwitchPlayer()

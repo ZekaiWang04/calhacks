@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class SphereController : MonoBehaviour
 {
@@ -14,16 +15,18 @@ public class SphereController : MonoBehaviour
     public DisplayGyroscope displayGyroscope;
     public HealthController health;
     public Transform spawn;
+    public TextMeshProUGUI gameEndText;
+    public GameManager gameManager;
 
     public Rigidbody rb;
-    private Camera cam;
+    public Camera cam;
     public Quaternion zeroQuaternion;
 
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        cam = Camera.current;
+        //cam = Camera.current;
         ResetZero();
 
         hitTimer = 0;
@@ -42,23 +45,25 @@ public class SphereController : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        //Vector3 dir = zeroQuaternion * cam.transform.forward;
-        //rb.AddForce(gravity * new Vector3(-dir.x, dir.y, -dir.z), ForceMode.Force);
-        rb.AddForce(gravity * Vector3.down, ForceMode.Force);
+        Vector3 dir = zeroQuaternion * cam.transform.forward;
+        rb.AddForce(gravity * new Vector3(-dir.x, dir.y, -dir.z), ForceMode.Force);
+        //rb.AddForce(gravity * Vector3.down, ForceMode.Force);
 
-        if (Input.GetKey(KeyCode.W))
-            rb.AddForce(Vector3.forward);
-        if (Input.GetKey(KeyCode.A))
-            rb.AddForce(Vector3.left);
-        if (Input.GetKey(KeyCode.S))
-            rb.AddForce(Vector3.back);
-        if (Input.GetKey(KeyCode.D))
-            rb.AddForce(Vector3.right);
+        displayGyroscope.UpdateText(cam.transform.forward.ToString());
+
+        //if (Input.GetKey(KeyCode.W))
+        //    rb.AddForce(Vector3.forward);
+        //if (Input.GetKey(KeyCode.A))
+        //    rb.AddForce(Vector3.left);
+        //if (Input.GetKey(KeyCode.S))
+        //    rb.AddForce(Vector3.back);
+        //if (Input.GetKey(KeyCode.D))
+        //    rb.AddForce(Vector3.right);
     }
 
     public void ResetZero()
     {
-        //zeroQuaternion.SetFromToRotation(cam.transform.forward, Vector3.down);
+        zeroQuaternion.SetFromToRotation(cam.transform.forward, Vector3.down);
     }
 
     private void OnTriggerStay(Collider other)
@@ -77,12 +82,17 @@ public class SphereController : MonoBehaviour
         {
             if (health.TakeDamage())
             {
-
+                Die();
             }
             else
             {
                 hitTimer = hitCooldown;
             }
+        }
+
+        if (collision.collider.CompareTag("Goal"))
+        {
+            gameManager.Next();
         }
     }
 
@@ -90,7 +100,7 @@ public class SphereController : MonoBehaviour
     {
         if (health.TakeDamage())
         {
-
+            Die();
         }
         else
         {
@@ -103,7 +113,15 @@ public class SphereController : MonoBehaviour
         transform.position = spawn.position + new Vector3(0, 0.06f, 0);
         rb.velocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
+        health.ResetHealth();
 
         gameObject.SetActive(true);
+    }
+
+    public void Die()
+    {
+        gameObject.SetActive(false);
+        gameEndText.text = "Player " + GameManager.Player + " died! Player " + (3 - GameManager.Player) + " wins!";
+        gameEndText.gameObject.SetActive(true);
     }
 }
